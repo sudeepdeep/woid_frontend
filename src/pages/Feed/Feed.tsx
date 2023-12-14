@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { FeedStore } from "../../App";
 import {
@@ -11,18 +11,9 @@ import axios from "../../services/axios";
 import Cookies from "js-cookie";
 import { useQueryClient } from "react-query";
 
-const images = [
-  "https://i.pinimg.com/originals/23/93/1c/23931cec40eee9526c3d89206070e7af.jpg",
-  "https://wallpapers.com/images/featured/hd-a5u9zq0a0ymy2dug.jpg",
-  "https://images.unsplash.com/photo-1614027164847-1b28cfe1df60?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxleHBsb3JlLWZlZWR8MXx8fGVufDB8fHx8fA%3D%3D",
-  "https://www.hdimages.pics/images/quotes/english/general/beautiful-white-flower-wallpaper-hd-52650-312751-mobile.jpg",
-  "https://wallpapers.com/images/hd/bubbles-background-cxu66nt9guprib70.jpg",
-];
-
 function Feed({ data, loading }: any) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [like, setLike] = useState(false);
 
   function handleProfileClick(id: number) {
     const screenWidth = window.innerWidth;
@@ -57,7 +48,6 @@ function Feed({ data, loading }: any) {
         queryClient.invalidateQueries("feed-posts");
       })
       .catch((err) => console.log(err));
-    setLike(!like);
   }
 
   async function handleDisLike(postId: any) {
@@ -67,12 +57,17 @@ function Feed({ data, loading }: any) {
         queryClient.invalidateQueries("feed-posts");
       })
       .catch((err) => console.log(err));
-    setLike(!like);
   }
 
-  function parsedData(text: string) {
-    const hashIndex = text.indexOf("#") + 1;
-    return hashIndex;
+  function handlePostDelete(postId: string) {
+    axios
+      .post(`post/${postId}/delete-post`)
+      .then((res) => {
+        queryClient.invalidateQueries("feed-posts");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
   if (loading) return <div>Spinner....!</div>;
@@ -82,7 +77,7 @@ function Feed({ data, loading }: any) {
       <div className="timeline  max-h-[100vh] overflow-auto max-w-xl mx-auto my-10">
         {data?.map((post: any, feedIndex: any) => (
           <>
-            <div className="postCard bg-[#303030] w-full min-h-[470px] h-auto  p-6 mb-2  rounded-md">
+            <div className="postCard bg-[#303030] w-full  h-auto  p-6 mb-2  rounded-md">
               <div className="postTitle flex gap-1 items-center">
                 <div className="displayPic w-[35px] h-[35px] rounded-full cursor-pointer">
                   <img
@@ -103,28 +98,42 @@ function Feed({ data, loading }: any) {
                     {"Follow"}
                   </div>
                 )}
+
+                {post.user._id === Cookies.get("userId") && (
+                  <>
+                    <div
+                      className="followButton text-[#fe8040] border-2 text-sm w-[70px] h-[25px] flex items-center justify-center ml-1 rounded-md border-[#fe8040] cursor-pointer"
+                      onClick={() => handlePostDelete(post.post._id)}
+                    >
+                      {"Delete"}
+                    </div>
+                  </>
+                )}
               </div>
               <div className="postImages grid gap-4">
                 <div className="postText mt-2 text-white">
                   {post?.post?.postDescription}
                 </div>
-
-                <div className="coverImage my-2 h-[200px] overflow-hidden max-w-full rounded-lg">
-                  <img src={images[0]} alt="coverImage" />
-                </div>
-                {images.length > 1 && (
-                  <div className="grid grid-cols-4 gap-2 h-[100px] overflow-hidden">
-                    {images.map(
-                      (image, index) =>
-                        index !== 0 && (
-                          <>
-                            <div className="images rounded-md">
-                              <img src={images[index]} alt="images" />
-                            </div>
-                          </>
-                        )
+                {post?.post?.images.length > 0 && (
+                  <>
+                    <div className="coverImage my-2 h-[200px] overflow-hidden max-w-full rounded-lg">
+                      <img src={post?.post?.images[0]} alt="coverImage" />
+                    </div>
+                    {post?.post?.images.length > 1 && (
+                      <div className="grid grid-cols-4 gap-2 h-[100px] overflow-hidden">
+                        {post?.post?.images.map(
+                          (image: any, index: number) =>
+                            index !== 0 && (
+                              <>
+                                <div className="images rounded-md">
+                                  <img src={image} alt="images" />
+                                </div>
+                              </>
+                            )
+                        )}
+                      </div>
                     )}
-                  </div>
+                  </>
                 )}
               </div>
               <div className="postFooter flex gap-2 mt-7 items-center justify-between">
@@ -138,6 +147,10 @@ function Feed({ data, loading }: any) {
                         {<ActivateLikeIcon />}
                       </div>
                       <div className="text-white">liked</div>
+                      <span className="text-white">
+                        {post?.post?.likedBy.length > 0 &&
+                          post?.post?.likedBy.length}
+                      </span>
                     </div>
                   ) : (
                     <div

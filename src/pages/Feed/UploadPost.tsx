@@ -7,17 +7,27 @@ import { useQueryClient } from "react-query";
 function UploadPost() {
   const [enterField, setEnterField] = useState(false);
   const [postData, setPostData] = useState("");
-  const [files, setFiles] = useState<File[]>([]);
+  const [uploadedUrls, setUploadedUrls] = useState<string[]>([]);
   const queryClient = useQueryClient();
   function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
     const selectedFiles = e.target.files;
     if (selectedFiles) {
-      setFiles((prev) => [...prev, ...Array.from(selectedFiles)]);
+      const formData = new FormData();
+      formData.append("file", selectedFiles[0]);
+
+      axios
+        .post(`/post/${Cookies.get("userId")}/upload`, formData)
+        .then((res) => {
+          setUploadedUrls((prevArray) => [...prevArray, res.data.fileUrl]);
+        })
+        .catch((err) => console.log(err));
     }
   }
 
-  function handleDelete(fileData: File) {
-    setFiles((prevFiles) => prevFiles.filter((file) => file !== fileData));
+  function handleDelete(fileData: string) {
+    setUploadedUrls((prevFiles) =>
+      prevFiles.filter((file) => file !== fileData)
+    );
   }
 
   function handleUploadPost() {
@@ -29,9 +39,13 @@ function UploadPost() {
         postDescription: postData,
       })
       .then((res) => {
-        setPostData("");
-        setEnterField(false);
-        queryClient.invalidateQueries("feed-posts");
+        axios
+          .put(`post/${res.data._id}/update`, { images: uploadedUrls })
+          .then((result) => {
+            setPostData("");
+            setEnterField(false);
+            queryClient.invalidateQueries("feed-posts");
+          });
       })
       .catch((err) => {
         console.log(err);
@@ -65,7 +79,7 @@ function UploadPost() {
           </div>
           <h5 className="ml-10 text-white">Upload Photos</h5>
         </div>
-        {files.length <= 6 && (
+        {UploadPost.length <= 6 && (
           <input
             type="file"
             className="absolute opacity-0 hover:cursor-pointer w-[120px]"
@@ -75,19 +89,19 @@ function UploadPost() {
         )}
       </div>
 
-      {files.length > 0 && (
+      {uploadedUrls.length > 0 && (
         <>
           <div
             className={`imgGrid mt-[50px] mx-auto max-w-sm  grid gap-[1px] grid-cols-2 grid-rows-${
-              files.length % 3
+              uploadedUrls.length % 3
             }`}
           >
-            {files.map((file) => (
+            {uploadedUrls.map((file) => (
               <>
                 <div className="imageParent">
                   <div className="file relative m-1">
                     <img
-                      src="https://i.pinimg.com/236x/16/94/de/1694de327224fb21c0dfc7f2c892d711.jpg"
+                      src={file}
                       alt="uploadedImage"
                       className="h-28 w-full object-cover"
                     />
@@ -104,7 +118,7 @@ function UploadPost() {
           </div>
         </>
       )}
-      {(files.length > 0 || postData.length > 0) && (
+      {(uploadedUrls.length > 0 || postData.length > 0) && (
         <>
           <div className="postButton relative max-w-xl my-10 flex items-center justify-center mx-auto">
             <button

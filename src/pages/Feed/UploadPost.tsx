@@ -37,15 +37,13 @@ function UploadPost() {
       .post("post/upload-post", {
         id: Cookies.get("userId"),
         postDescription: postData,
+        images: uploadedUrls,
       })
       .then((res) => {
-        axios
-          .put(`post/${res.data._id}/update`, { images: uploadedUrls })
-          .then((result) => {
-            setPostData("");
-            setEnterField(false);
-            queryClient.invalidateQueries("feed-posts");
-          });
+        setPostData("");
+        setUploadedUrls([]);
+        setEnterField(false);
+        queryClient.invalidateQueries("feed-posts");
       })
       .catch((err) => {
         console.log(err);

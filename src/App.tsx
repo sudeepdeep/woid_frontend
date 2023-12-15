@@ -6,6 +6,9 @@ import Feed from "./pages/Feed/Feed";
 import UploadPost from "./pages/Feed/UploadPost";
 import axios from "./services/axios";
 import Cookies from "js-cookie";
+import logo from "./assets/images/WOIDLOGO.png";
+import { ExitIcon } from "./Icons";
+import { userStore } from "./Layout/Layout";
 
 interface FeedInteraction {
   profileClick: boolean;
@@ -66,15 +69,27 @@ function App() {
     };
   }, [pageNumber]);
 
+  function handleLogout() {
+    userStore.update((s) => {
+      s.logout = true;
+    });
+  }
+
   return (
     <div className="mainBody w-full">
-      <div className="mainContent w-[100%] ">
-        <div className="logo w-full h-[40px]">
+      <div className="mainContent w-[100%]">
+        <div className="logo w-full relative flex items-center h-[50px] pt-[20px] sm:h-auto">
           <img
-            src="https://www.freepnglogos.com/uploads/shopee-logo-png/shopee-logo-products-kjm-11.png"
+            src={logo}
             alt="logo"
             className="h-10 w-[100px] mx-auto object-cover sm:w-32 sm:h-full"
           />
+          <div
+            className="logout absolute right-5 cursor-pointer text-white"
+            onClick={handleLogout}
+          >
+            <ExitIcon />
+          </div>
         </div>
         <UploadPost />
         <Feed data={data} loading={isLoading} />

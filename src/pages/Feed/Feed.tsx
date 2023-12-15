@@ -72,6 +72,26 @@ function Feed({ data, loading }: any) {
 
   if (loading) return <div>Spinner....!</div>;
 
+  function HandleParsedText({ text }: any) {
+    console.log(text);
+    const splitText = text.split(" ");
+    return (
+      <>
+        {splitText.map((text: string) => (
+          <>
+            {text[0] === "#" ? (
+              <span className="font-semibold text-[#fe8040] cursor-pointer mx-1">
+                {text}
+              </span>
+            ) : (
+              <span className="mx-[2px]">{text}</span>
+            )}
+          </>
+        ))}
+      </>
+    );
+  }
+
   return (
     <>
       <div className="timeline  max-h-[100vh] overflow-auto max-w-xl mx-auto my-10">
@@ -112,7 +132,7 @@ function Feed({ data, loading }: any) {
               </div>
               <div className="postImages grid gap-4">
                 <div className="postText mt-2 text-white">
-                  {post?.post?.postDescription}
+                  <HandleParsedText text={post?.post?.postDescription ?? ""} />
                 </div>
                 {post?.post?.images.length > 0 && (
                   <>

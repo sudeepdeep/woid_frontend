@@ -22,6 +22,7 @@ import Cookies from "js-cookie";
 
 export const userStore = new Store({
   userData: null,
+  logout: false,
 });
 
 const menuLists = [
@@ -61,6 +62,7 @@ function Layout() {
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(1);
   const state = FeedStore.useState((s) => s);
+  const userState = userStore.useState((s) => s);
   const existingUser = Cookies.get("token");
   const existingUserId = Cookies.get("userId");
   const { data, isLoading } = useQuery(
@@ -88,9 +90,47 @@ function Layout() {
     if (!existingUser) navigate("/login");
   }, []);
 
+  function handleLogout() {
+    const checkToken = Cookies.get("token");
+    if (checkToken) {
+      Cookies.remove("token");
+      Cookies.remove("userId");
+    }
+    navigate("/login");
+  }
+
   return (
     <>
-      <div className="w-full flex bg-[#0F0F0F]">
+      <div className="w-full flex bg-[#0F0F0F] relative">
+        {userState.logout && (
+          <>
+            <div className="logout absolute h-full z-40 backdrop-blur-sm  w-full flex items-center pt-[200px] flex-col">
+              <div className="p-4">
+                <div className="text-white">
+                  Are you sure you want to log out?
+                </div>
+                <div className="text-white mt-[30px]">
+                  <span
+                    onClick={() => {
+                      userStore.update((s) => {
+                        s.logout = false;
+                      });
+                    }}
+                    className="w-[100px] border-2 border-[#fe8040] cursor-pointer rounded-md p-2 mr-[10px]"
+                  >
+                    Cancel
+                  </span>
+                  <span
+                    onClick={handleLogout}
+                    className="w-[100px] bg-[#fe8040] cursor-pointer p-2 rounded-md"
+                  >
+                    Logout
+                  </span>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
         <>
           <div className="sideBar hidden h-[100vh]  w-[20%] md:flex items-center ">
             <div className="w-full text-center">

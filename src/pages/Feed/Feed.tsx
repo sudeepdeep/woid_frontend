@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FeedStore } from "../../App";
 import {
   ActivateLikeIcon,
   CommentIcon,
@@ -9,11 +8,75 @@ import {
 } from "../../Icons";
 import axios from "../../services/axios";
 import Cookies from "js-cookie";
-import { useQueryClient } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
+import { Store } from "pullstate";
+import { toast } from "react-toastify";
+import loading from "../../assets/images/loading.gif";
+import Loading from "../../Components/Loading";
 
-function Feed({ data, loading }: any) {
+interface FeedInteraction {
+  profileClick: boolean;
+  profileData: any;
+  commentsClick: boolean;
+  commentsData: any;
+  imagesClick: boolean;
+}
+
+export const FeedStore = new Store<FeedInteraction>({
+  commentsClick: false,
+  profileClick: false,
+  profileData: null,
+  commentsData: null,
+  imagesClick: false,
+});
+
+function Feed({ isPublic = false, myPosts = false }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  const [page, setPage] = useState(1);
+  const [items, setItems] = useState<any[]>([]);
+
+  const { data, isLoading, refetch } = useQuery(
+    ["feed-posts"],
+    () =>
+      axios
+        .get(`post/${Cookies.get("userId")}`, {
+          params: {
+            page: page,
+            type: isPublic ? undefined : myPosts ? "my-posts" : "following",
+          },
+        })
+        .then((res) => res.data)
+        .catch((err) => toast.error(err)),
+    {
+      onSuccess(data) {
+        if (data.length > 0) {
+          setItems(data);
+          setPage((prevPage) => prevPage + 1);
+        }
+      },
+      onError(err) {
+        toast.error("some thing went wrong");
+      },
+    }
+  );
+
+  const handleScroll = () => {
+    if (
+      window.innerHeight + document.documentElement.scrollTop !==
+        document.documentElement.offsetHeight ||
+      isLoading
+    ) {
+      return;
+    }
+    refetch();
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isLoading]);
 
   function handleProfileClick(id: number) {
     const screenWidth = window.innerWidth;
@@ -47,7 +110,7 @@ function Feed({ data, loading }: any) {
       .then((res) => {
         queryClient.invalidateQueries("feed-posts");
       })
-      .catch((err) => console.log(err));
+      .catch((err) => toast.error(err));
   }
 
   async function handleDisLike(postId: any) {
@@ -56,24 +119,24 @@ function Feed({ data, loading }: any) {
       .then((res) => {
         queryClient.invalidateQueries("feed-posts");
       })
-      .catch((err) => console.log(err));
+      .catch((err) => toast.error(err));
   }
 
   function handlePostDelete(postId: string) {
     axios
       .post(`post/${postId}/delete-post`)
       .then((res) => {
-        queryClient.invalidateQueries("feed-posts");
+        toast.success("post deleted successfully");
+        window.location.reload();
       })
       .catch((err) => {
-        console.log(err);
+        toast.error(err);
       });
   }
 
-  if (loading) return <div>Spinner....!</div>;
+  if (isLoading) return <Loading />;
 
   function HandleParsedText({ text }: any) {
-    console.log(text);
     const splitText = text.split(" ");
     return (
       <>
@@ -92,10 +155,32 @@ function Feed({ data, loading }: any) {
     );
   }
 
+  function handleFollow(userId: any, friendId: string) {
+    axios
+      .put(`user/${userId}`, { following: [friendId] })
+      .then((res) => {
+        queryClient.invalidateQueries("feed-posts");
+      })
+      .catch((err) => {
+        toast.error(err);
+      });
+  }
+
+  function handleUnfollow(userId: any, friendId: string) {
+    axios
+      .put(`user/${userId}/${friendId}/un-follow`)
+      .then((res) => {
+        queryClient.invalidateQueries("feed-posts");
+      })
+      .catch((err) => {
+        toast.error(err);
+      });
+  }
+
   return (
     <>
       <div className="timeline  max-h-[100vh] overflow-auto max-w-xl mx-auto my-10">
-        {data?.map((post: any, feedIndex: any) => (
+        {items?.map((post: any, feedIndex: any) => (
           <>
             <div className="postCard bg-[#303030] w-full  h-auto  p-6 mb-2  rounded-md">
               <div className="postTitle flex gap-1 items-center">
@@ -114,8 +199,17 @@ function Feed({ data, loading }: any) {
                   {post?.user?.username}
                 </div>
                 {post.user._id !== Cookies.get("userId") && (
-                  <div className="followButton text-[#fe8040] border-2 text-sm w-[70px] h-[25px] flex items-center justify-center ml-1 rounded-md border-[#fe8040] cursor-pointer">
-                    {"Follow"}
+                  <div
+                    onClick={() =>
+                      post?.user?.followers.includes(Cookies.get("userId"))
+                        ? handleUnfollow(Cookies.get("userId"), post.user._id)
+                        : handleFollow(Cookies.get("userId"), post.user._id)
+                    }
+                    className="followButton text-[#fe8040] border-2 text-sm w-[70px] h-[25px] flex items-center justify-center ml-1 rounded-md border-[#fe8040] cursor-pointer"
+                  >
+                    {post?.user?.followers.includes(Cookies.get("userId"))
+                      ? "Following"
+                      : "Follow"}
                   </div>
                 )}
 

@@ -13,12 +13,10 @@ import {
   ActivateProfileIcon,
 } from "../Icons";
 import ProfileView from "../Components/ProfileView";
-import { FeedStore } from "../App";
 import CommentsView from "../Components/CommentsView";
 import { Store } from "pullstate";
-import axios from "../services/axios";
-import { useQuery } from "react-query";
 import Cookies from "js-cookie";
+import { FeedStore } from "../pages/Feed/Feed";
 
 export const userStore = new Store({
   userData: null,
@@ -40,7 +38,7 @@ const menuLists = [
   },
   {
     title: "Public",
-    path: "/public",
+    path: "/public-feed",
     icon: <ExploreIcon />,
     activeIcon: <ActivateExploreIcon />,
   },
@@ -52,7 +50,7 @@ const menuLists = [
   },
   {
     title: "Profile",
-    path: "/profile",
+    path: "/full-profile",
     icon: <ProfileIcon />,
     activeIcon: <ActivateProfileIcon />,
   },
@@ -64,27 +62,6 @@ function Layout() {
   const state = FeedStore.useState((s) => s);
   const userState = userStore.useState((s) => s);
   const existingUser = Cookies.get("token");
-  const existingUserId = Cookies.get("userId");
-  const { data, isLoading } = useQuery(
-    ["userData", existingUserId],
-    () =>
-      axios
-        .get(`user/${existingUserId}`)
-        .then((res) => res.data)
-        .catch((err) => {
-          // Cookies.remove("token");
-          // Cookies.remove("userId");
-          // navigate("/login");
-        }),
-    {
-      enabled: existingUserId ? true : false,
-      onSuccess(data) {
-        userStore.update((s) => {
-          s.userData = data;
-        });
-      },
-    }
-  );
 
   useEffect(() => {
     if (!existingUser) navigate("/login");
@@ -93,6 +70,9 @@ function Layout() {
   function handleLogout() {
     const checkToken = Cookies.get("token");
     if (checkToken) {
+      userStore.update((s) => {
+        s.logout = false;
+      });
       Cookies.remove("token");
       Cookies.remove("userId");
     }
@@ -137,7 +117,10 @@ function Layout() {
               {menuLists.map((item, index) => (
                 <>
                   <div
-                    onClick={() => setActiveIndex(index + 1)}
+                    onClick={() => {
+                      setActiveIndex(index + 1);
+                      navigate(`${item.path}`);
+                    }}
                     className={`itemMenu flex items-center ${
                       activeIndex - 1 !== index
                         ? "text-white"
@@ -160,7 +143,13 @@ function Layout() {
                   className="h-[10px] w-[20px]"
                   onClick={() => setActiveIndex(index + 1)}
                 >
-                  <div className="h-[30px] w-[30px]">
+                  <div
+                    onClick={() => {
+                      setActiveIndex(index + 1);
+                      navigate(`${list.path}`);
+                    }}
+                    className="h-[30px] w-[30px]"
+                  >
                     {activeIndex - 1 === index ? list.activeIcon : list.icon}
                   </div>
                 </div>

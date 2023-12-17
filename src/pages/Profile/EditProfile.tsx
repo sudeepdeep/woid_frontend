@@ -10,7 +10,6 @@ function EditProfile() {
   const { userId } = useParams();
   const [state, setState] = useState({
     username: "",
-    password: "",
     email: "",
     bio: "",
     profileUrl: "",

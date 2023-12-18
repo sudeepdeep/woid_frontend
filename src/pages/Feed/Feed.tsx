@@ -13,6 +13,7 @@ import { Store } from "pullstate";
 import { toast } from "react-toastify";
 import loading from "../../assets/images/loading.gif";
 import Loading from "../../Components/Loading";
+import ProfileCard from "../../Components/ProfileCard";
 
 interface FeedInteraction {
   profileClick: boolean;
@@ -36,6 +37,13 @@ function Feed({ isPublic = false, myPosts = false }) {
 
   const [page, setPage] = useState(1);
   const [items, setItems] = useState<any[]>([]);
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (items.length === 0) {
+      handleGetSuggestions();
+    }
+  }, [items]);
 
   const { data, isLoading, refetch } = useQuery(
     ["feed-posts"],
@@ -177,120 +185,147 @@ function Feed({ isPublic = false, myPosts = false }) {
       });
   }
 
+  function handleGetSuggestions() {
+    axios
+      .get(`/user/${Cookies.get("userId")}`)
+      .then((res) => setSuggestions(res.data))
+      .catch((err) => console.log(err));
+  }
+
   return (
     <>
+      {items.length === 0 && !myPosts && (
+        <>
+          <div className="no-posts text-center text-white my-2">
+            No Feed to show!! <br /> Please follow suggested accounts.
+          </div>
+          {suggestions.length > 0 && (
+            <div className="max-w-full grid grid-cols-1 gap-4 md:grid-cols-2 h-auto ">
+              {suggestions.map((suggestion) => (
+                <div className="mx-auto mt-[30px]">
+                  <ProfileCard data={suggestion} />
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
       <div className="timeline  max-h-[100vh] overflow-auto max-w-xl mx-auto my-10">
-        {items?.map((post: any, feedIndex: any) => (
-          <>
-            <div className="postCard bg-[#303030] w-full  h-auto  p-6 mb-2  rounded-md">
-              <div className="postTitle flex gap-1 items-center">
-                <div className="displayPic w-[35px] h-[35px] rounded-full cursor-pointer">
-                  <img
-                    src="https://play-lh.googleusercontent.com/GD78NlC-yoQXcLsvTc3JLr_VVR5YKQp43FOfWLB7e5lwU_La_hy4olpMaj0_yY7ScgQ"
-                    alt="profilePic"
-                    className="rounded-full"
-                    onClick={() => handleProfileClick(feedIndex)}
-                  />
-                </div>
-                <div
-                  className="userName font-semibold ml-2 text-white cursor-pointer"
-                  onClick={() => handleProfileClick(feedIndex)}
-                >
-                  {post?.user?.username}
-                </div>
-                {post.user._id !== Cookies.get("userId") && (
-                  <div
-                    onClick={() =>
-                      post?.user?.followers.includes(Cookies.get("userId"))
-                        ? handleUnfollow(Cookies.get("userId"), post.user._id)
-                        : handleFollow(Cookies.get("userId"), post.user._id)
-                    }
-                    className="followButton text-[#fe8040] border-2 text-sm w-[70px] h-[25px] flex items-center justify-center ml-1 rounded-md border-[#fe8040] cursor-pointer"
-                  >
-                    {post?.user?.followers.includes(Cookies.get("userId"))
-                      ? "Following"
-                      : "Follow"}
+        <>
+          {items?.map((post: any, feedIndex: any) => (
+            <>
+              <div className="postCard bg-[#303030] w-full  h-auto  p-6 mb-2  rounded-md">
+                <div className="postTitle flex gap-1 items-center">
+                  <div className="displayPic w-[35px] h-[35px] rounded-full cursor-pointer">
+                    <img
+                      src={post?.user?.profileUrl}
+                      alt="profilePic"
+                      className="h-full  w-full object-cover  rounded-full"
+                      onClick={() => handleProfileClick(feedIndex)}
+                    />
                   </div>
-                )}
-
-                {post.user._id === Cookies.get("userId") && (
-                  <>
+                  <div
+                    className="userName font-semibold ml-2 text-white cursor-pointer"
+                    onClick={() => handleProfileClick(feedIndex)}
+                  >
+                    {post?.user?.username}
+                  </div>
+                  {post.user._id !== Cookies.get("userId") && (
                     <div
+                      onClick={() =>
+                        post?.user?.followers.includes(Cookies.get("userId"))
+                          ? handleUnfollow(Cookies.get("userId"), post.user._id)
+                          : handleFollow(Cookies.get("userId"), post.user._id)
+                      }
                       className="followButton text-[#fe8040] border-2 text-sm w-[70px] h-[25px] flex items-center justify-center ml-1 rounded-md border-[#fe8040] cursor-pointer"
-                      onClick={() => handlePostDelete(post.post._id)}
                     >
-                      {"Delete"}
-                    </div>
-                  </>
-                )}
-              </div>
-              <div className="postImages grid gap-4">
-                <div className="postText mt-2 text-white">
-                  <HandleParsedText text={post?.post?.postDescription ?? ""} />
-                </div>
-                {post?.post?.images.length > 0 && (
-                  <>
-                    <div className="coverImage my-2 h-[200px] overflow-hidden max-w-full rounded-lg">
-                      <img src={post?.post?.images[0]} alt="coverImage" />
-                    </div>
-                    {post?.post?.images.length > 1 && (
-                      <div className="grid grid-cols-4 gap-2 h-[100px] overflow-hidden">
-                        {post?.post?.images.map(
-                          (image: any, index: number) =>
-                            index !== 0 && (
-                              <>
-                                <div className="images rounded-md">
-                                  <img src={image} alt="images" />
-                                </div>
-                              </>
-                            )
-                        )}
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-              <div className="postFooter flex gap-2 mt-7 items-center justify-between">
-                <div className="likeButton cursor-pointer flex gap-2 w-[100%] justify-center items-center">
-                  {post?.liked ? (
-                    <div
-                      className="flex items-center gap-2"
-                      onClick={() => handleDisLike(post?.post?._id)}
-                    >
-                      <div className="h-[20px] my-4">
-                        {<ActivateLikeIcon />}
-                      </div>
-                      <div className="text-white">liked</div>
-                      <span className="text-white">
-                        {post?.post?.likedBy.length > 0 &&
-                          post?.post?.likedBy.length}
-                      </span>
-                    </div>
-                  ) : (
-                    <div
-                      className="flex items-center gap-2"
-                      onClick={() => handleLike(post?.post?._id)}
-                    >
-                      <div className="h-[20px] my-4">{<LikeIcon />}</div>
-                      <div className="text-white">like</div>
+                      {post?.user?.followers.includes(Cookies.get("userId"))
+                        ? "Following"
+                        : "Follow"}
                     </div>
                   )}
+
+                  {post.user._id === Cookies.get("userId") && (
+                    <>
+                      <div
+                        className="followButton text-[#fe8040] border-2 text-sm w-[70px] h-[25px] flex items-center justify-center ml-1 rounded-md border-[#fe8040] cursor-pointer"
+                        onClick={() => handlePostDelete(post.post._id)}
+                      >
+                        {"Delete"}
+                      </div>
+                    </>
+                  )}
                 </div>
-                <div
-                  className="commentButton flex gap-2 w-[100%] justify-center items-center cursor-pointer"
-                  onClick={() => handleCommentClick(feedIndex)}
-                >
-                  <div className="h-[20px] my-4">{<CommentIcon />}</div>
-                  <div className="text-white">comment</div>
+                <div className="postImages grid gap-4">
+                  <div className="postText mt-2 text-white">
+                    <HandleParsedText
+                      text={post?.post?.postDescription ?? ""}
+                    />
+                  </div>
+                  {post?.post?.images.length > 0 && (
+                    <>
+                      <div className="coverImage my-2 h-[200px] overflow-hidden max-w-full rounded-lg">
+                        <img src={post?.post?.images[0]} alt="coverImage" />
+                      </div>
+                      {post?.post?.images.length > 1 && (
+                        <div className="grid grid-cols-4 gap-2 h-[100px] overflow-hidden">
+                          {post?.post?.images.map(
+                            (image: any, index: number) =>
+                              index !== 0 && (
+                                <>
+                                  <div className="images rounded-md">
+                                    <img src={image} alt="images" />
+                                  </div>
+                                </>
+                              )
+                          )}
+                        </div>
+                      )}
+                    </>
+                  )}
                 </div>
-                <div className="shareButton flex gap-2 w-[100%] justify-center items-center cursor-pointer">
-                  <div className="h-[20px] my-4">{<ShareIcon />}</div>
-                  <div className="text-white">share</div>
+                <div className="postFooter flex gap-2 mt-7 items-center justify-between">
+                  <div className="likeButton cursor-pointer flex gap-2 w-[100%] justify-center items-center">
+                    {post?.liked ? (
+                      <div
+                        className="flex items-center gap-2"
+                        onClick={() => handleDisLike(post?.post?._id)}
+                      >
+                        <div className="h-[20px] my-4">
+                          {<ActivateLikeIcon />}
+                        </div>
+                        <div className="text-white">liked</div>
+                        <span className="text-white">
+                          {post?.post?.likedBy.length > 0 &&
+                            post?.post?.likedBy.length}
+                        </span>
+                      </div>
+                    ) : (
+                      <div
+                        className="flex items-center gap-2"
+                        onClick={() => handleLike(post?.post?._id)}
+                      >
+                        <div className="h-[20px] my-4">{<LikeIcon />}</div>
+                        <div className="text-white">like</div>
+                      </div>
+                    )}
+                  </div>
+                  <div
+                    className="commentButton flex gap-2 w-[100%] justify-center items-center cursor-pointer"
+                    onClick={() => handleCommentClick(feedIndex)}
+                  >
+                    <div className="h-[20px] my-4">{<CommentIcon />}</div>
+                    <div className="text-white">comment</div>
+                  </div>
+                  <div className="shareButton flex gap-2 w-[100%] justify-center items-center cursor-pointer">
+                    <div className="h-[20px] my-4">{<ShareIcon />}</div>
+                    <div className="text-white">share</div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </>
-        ))}
+            </>
+          ))}
+        </>
       </div>
     </>
   );

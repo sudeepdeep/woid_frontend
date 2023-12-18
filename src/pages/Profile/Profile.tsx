@@ -10,7 +10,7 @@ import ProfileCard from "../../Components/ProfileCard";
 function Profile() {
   const { data, isLoading } = useQuery("user-data", () =>
     axios
-      .get(`/user/${Cookies.get("userId")}`)
+      .get(`/user/${Cookies.get("userId")}/my-profile`)
       .then((res) => res.data)
       .catch((err) => toast.error(err))
   );

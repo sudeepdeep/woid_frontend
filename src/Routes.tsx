@@ -9,6 +9,8 @@ import Logout from "./pages/Logout";
 import PublicFeed from "./pages/PublicFeed/PublicFeed";
 import Profile from "./pages/Profile/Profile";
 import EditProfile from "./pages/Profile/EditProfile";
+import About from "./pages/About";
+import Message from "./pages/messages/Message";
 
 export const MainRoutes = () => {
   return (
@@ -21,6 +23,8 @@ export const MainRoutes = () => {
           <Route path="full-profile" element={<Profile />} />
           <Route path="public-feed" element={<PublicFeed />} />
           <Route path=":userId/edit-profile" element={<EditProfile />} />
+          <Route path="about" element={<About />} />
+          <Route path="inbox" element={<Message />} />
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/logout" element={<Logout />} />

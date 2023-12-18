@@ -24,7 +24,7 @@ function EditProfile() {
     ["user-data", userId],
     () =>
       axios
-        .get(`/user/${userId}`)
+        .get(`/user/${userId}/my-profile`)
         .then((res) => res.data)
         .catch((err) => toast.error(err)),
     {

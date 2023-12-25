@@ -89,7 +89,7 @@ function Feed({ isPublic = false, myPosts = false }) {
   function handleProfileClick(id: number) {
     const screenWidth = window.innerWidth;
     if (screenWidth <= 600) {
-      navigate("profile");
+      navigate(`/${id}/profile`);
     } else {
       FeedStore.update((s) => {
         s.profileClick = true;
@@ -196,8 +196,9 @@ function Feed({ isPublic = false, myPosts = false }) {
     <>
       {items.length === 0 && !myPosts && (
         <>
-          <div className="no-posts text-center text-white my-2">
-            No Feed to show!! <br /> Please follow suggested accounts.
+          <div className="no-posts text-center text-white my-5">
+            No Feed to show!! <br /> Please feel free to follow suggested
+            accounts.
           </div>
           {suggestions.length > 0 && (
             <div className="max-w-full grid grid-cols-1 gap-4 md:grid-cols-2 h-auto ">
@@ -221,12 +222,12 @@ function Feed({ isPublic = false, myPosts = false }) {
                       src={post?.user?.profileUrl}
                       alt="profilePic"
                       className="h-full  w-full object-cover  rounded-full"
-                      onClick={() => handleProfileClick(feedIndex)}
+                      onClick={() => handleProfileClick(post?.user?._id)}
                     />
                   </div>
                   <div
                     className="userName font-semibold ml-2 text-white cursor-pointer"
-                    onClick={() => handleProfileClick(feedIndex)}
+                    onClick={() => handleProfileClick(post?.user?._id)}
                   >
                     {post?.user?.username}
                   </div>

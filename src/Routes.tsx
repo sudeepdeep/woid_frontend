@@ -21,6 +21,7 @@ export const MainRoutes = () => {
           <Route path="comments" element={<CommentsView />} />
           <Route path="profile" element={<ProfileView />} />
           <Route path="full-profile" element={<Profile />} />
+          <Route path=":userId/profile" element={<Profile />} />
           <Route path="public-feed" element={<PublicFeed />} />
           <Route path=":userId/edit-profile" element={<EditProfile />} />
           <Route path="about" element={<About />} />

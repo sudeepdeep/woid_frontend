@@ -138,7 +138,7 @@ function UploadPost() {
               <div className="postButton relative max-w-xl my-10 flex items-center justify-center mx-auto">
                 <button
                   onClick={handleUploadPost}
-                  className="w-[200px] h-[40px] rounded-sm shadow-md overflow-hidden bg-[#fe8040] uppercase font-semibold tracking-widest text-md"
+                  className="w-[200px] h-[40px]  rounded-sm shadow-md overflow-hidden bg-[#fe8040] uppercase font-semibold tracking-widest text-md"
                 >
                   post
                 </button>

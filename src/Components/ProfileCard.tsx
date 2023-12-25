@@ -1,6 +1,6 @@
 import Cookies from "js-cookie";
 import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { userStore } from "../Layout/Layout";
 import profile from "../assets/images/default-profile.jpg";
 import { FacebookIcon, InstaIcon, TwitterIcon } from "../Icons";
@@ -11,6 +11,9 @@ import { toast } from "react-toastify";
 function ProfileCard({ data }: any) {
   const { user, postsCount } = data;
 
+  const { userId } = useParams();
+
+  console.log(userId, user);
   const queryClient = useQueryClient();
 
   const navigate = useNavigate();
@@ -53,7 +56,7 @@ function ProfileCard({ data }: any) {
       });
   }
   return (
-    <div className="profile-card w-[300px] min-h-[50vh] pb-3 h-auto relative flex-col justify-center rounded-md bg-[#303030] text-white">
+    <div className="profile-card w-[300px] max-h-[60vh] pb-3 relative flex-col justify-center rounded-md bg-[#303030] text-white">
       <img
         src={user?.profileUrl ?? profile}
         alt="logo"
@@ -61,7 +64,7 @@ function ProfileCard({ data }: any) {
       />
       <div className="pt-[190px] text-center">
         <div className="username font-bold">{user?.username ?? ""}</div>
-        <div className="desc">{user?.bio ?? "--"}</div>
+        <div className="desc mb-3">{user?.bio ?? "--"}</div>
         <div className="flex justify-around items-center gap-4">
           <div>
             <div className="desc font-extrabold">
@@ -95,7 +98,7 @@ function ProfileCard({ data }: any) {
           ))}
         </div> */}
         <div
-          className="w-[200px] h-[50px] bg-[#fe8040] mx-auto mb-3 mt-3 flex items-center justify-center rounded-md font-semibold cursor-pointer"
+          className="w-[200px] h-[50px] border-[1px] hover:bg-[#fe8040] transition-all duration-300  border-[#fe8040] mx-auto mb-3 mt-3 flex items-center justify-center rounded-md font-semibold cursor-pointer"
           onClick={() =>
             user._id === Cookies.get("userId")
               ? navigate(`/${user._id}/edit-profile`)
@@ -106,7 +109,7 @@ function ProfileCard({ data }: any) {
         >
           {user._id === Cookies.get("userId")
             ? "Edit Profile"
-            : user.following.includes(Cookies.get("userId"))
+            : user.followers.includes(Cookies.get("userId"))
             ? "Following"
             : "Follow"}
         </div>

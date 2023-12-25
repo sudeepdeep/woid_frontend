@@ -14,7 +14,7 @@ function App() {
   }
 
   return (
-    <div className="mainBody w-full">
+    <div className="mainBody  w-full font-poppins">
       <div className="mainContent w-[100%]">
         <div className="logo w-full relative flex items-center h-[50px] pt-[20px] sm:h-auto">
           <img

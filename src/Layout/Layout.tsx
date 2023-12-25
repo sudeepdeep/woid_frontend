@@ -50,7 +50,7 @@ const menuLists = [
   },
   {
     title: "Profile",
-    path: "/full-profile",
+    path: `/full-profile`,
     icon: <ProfileIcon />,
     activeIcon: <ActivateProfileIcon />,
   },
@@ -81,7 +81,7 @@ function Layout() {
 
   return (
     <>
-      <div className="w-full flex bg-[#0F0F0F] relative">
+      <div className="w-full font-poppins flex bg-[#0F0F0F] relative">
         {userState.logout && (
           <>
             <div className="logout absolute h-full z-40 backdrop-blur-sm  w-full flex items-center pt-[200px] flex-col">
@@ -112,7 +112,7 @@ function Layout() {
           </>
         )}
         <>
-          <div className="sideBar hidden h-[100vh]  w-[20%] md:flex items-center ">
+          <div className="sideBar  hidden h-[100vh]  w-[20%] md:flex items-center ">
             <div className="w-full text-center">
               {menuLists.map((item, index) => (
                 <>

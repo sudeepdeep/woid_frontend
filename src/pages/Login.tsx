@@ -36,9 +36,15 @@ function Login() {
       });
   }
   return (
-    <div className="w-full min-h-[100vh] h-auto flex flex-col-reverse items-center justify-between bg-black">
-      <Lottie animationData={bgImg} loop={true} autoplay={true} />
-      <div className="authCard max-w-md  flex-col items-center text-black justify-center h-auto py-20 px-10 shadow-md rounded-md">
+    <div className="w-full min-h-[100vh] h-auto flex md:flex-row flex-col-reverse items-center md:justify-center justify-start bg-black">
+      <div className="md:w-[500px]">
+        <Lottie animationData={bgImg} loop={true} autoplay={true} />
+      </div>
+      <div className="authCard max-w-md  flex-col items-center text-black justify-center h-auto px-10 shadow-md rounded-md">
+        <div className="logo w-[80px] my-3 mx-auto h-[80px]">
+          <img src={logo} alt="logo" />
+        </div>
+
         <input
           type="text"
           className="w-full resize-none rounded-sm bg-[#b4c2ed] p-3 mb-2 text-black"
@@ -66,10 +72,6 @@ function Login() {
             Create Account
           </span>
         </h4>
-      </div>
-
-      <div className="logo w-[80px] pt-6 h-[80px]">
-        <img src={logo} alt="logo" />
       </div>
     </div>
   );

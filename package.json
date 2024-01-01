@@ -15,6 +15,7 @@
     "@types/react-dom": "^18.2.17",
     "axios": "^1.6.2",
     "js-cookie": "^3.0.5",
+    "lottie-react": "^2.4.0",
     "pullstate": "^1.25.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

@@ -58,6 +58,31 @@ function Loading() {
 
 export default Loading;
 
+export const EditProfileLoading = () => {
+  return (
+    <div className="loading w-full h-[100vh] mt-10 bg-black flex flex-col gap-5 items-center justify-start">
+      <div className="bordershadow rounded-md p-4 max-w-sm w-full h-[350px] mx-auto">
+        <div className="animate-pulse flex space-x-4">
+          <div className="flex-1 space-y-2 py-1">
+            <div className="h-[20px] w-20 bg-slate-700 rounded"></div>
+            <div className="h-[30px] bg-slate-700 rounded"></div>
+
+            <div className="h-[20px] w-20 bg-slate-700 rounded"></div>
+            <div className="h-[30px] bg-slate-700 rounded"></div>
+
+            <div className="h-[20px] w-20 bg-slate-700 rounded"></div>
+            <div className="h-[30px] bg-slate-700 rounded"></div>
+            <div className="h-[35px] bg-slate-700 rounded"></div>
+
+            <div className="h-[120px] w-28 bg-slate-700 rounded"></div>
+            <div className="h-[35px] w-20 bg-slate-700 rounded"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export function ProfileLoading() {
   return (
     <div className="loading w-full h-[100vh] mt-10 bg-black flex flex-col gap-5 items-center justify-start">

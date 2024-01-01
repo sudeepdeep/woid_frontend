@@ -12,6 +12,7 @@ import EditProfile from "./pages/Profile/EditProfile";
 import About from "./pages/About";
 import Message from "./pages/messages/Message";
 import Success from "./pages/Success";
+import { EditProfileLoading } from "./Components/Loading";
 
 export const MainRoutes = () => {
   return (
@@ -32,6 +33,7 @@ export const MainRoutes = () => {
         <Route path="/logout" element={<Logout />} />
         <Route path="/success" element={<Success />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/loading" element={<EditProfileLoading />} />
       </Routes>
     </>
   );

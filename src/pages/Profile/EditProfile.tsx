@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router-dom";
 import axios from "../../services/axios";
 import { toast } from "react-toastify";
-import Loading from "../../Components/Loading";
+import { EditProfileLoading } from "../../Components/Loading";
 import profile from "../../assets/images/default-profile.jpg";
 
 function EditProfile() {
@@ -40,7 +40,7 @@ function EditProfile() {
     }
   );
 
-  if (isLoading) return <Loading />;
+  if (isLoading) return <EditProfileLoading />;
 
   function handleProfileUpload(e: ChangeEvent<HTMLInputElement>) {
     setLoading(true);

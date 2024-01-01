@@ -39,12 +39,6 @@ function Feed({ isPublic = false, myPosts = false }) {
   const [items, setItems] = useState<any[]>([]);
   const [suggestions, setSuggestions] = useState<any[]>([]);
 
-  useEffect(() => {
-    if (items.length === 0) {
-      handleGetSuggestions();
-    }
-  }, [items]);
-
   const { data, isLoading, refetch } = useQuery(
     ["feed-posts"],
     () =>
@@ -58,10 +52,13 @@ function Feed({ isPublic = false, myPosts = false }) {
         .then((res) => res.data)
         .catch((err) => toast.error(err)),
     {
+      cacheTime: 0,
       onSuccess(data) {
         if (data.length > 0) {
           setItems(data);
           setPage((prevPage) => prevPage + 1);
+        } else {
+          handleGetSuggestions();
         }
       },
       onError(err) {
@@ -194,21 +191,20 @@ function Feed({ isPublic = false, myPosts = false }) {
 
   return (
     <>
-      {items.length === 0 && !myPosts && (
+      {suggestions.length > 0 && !myPosts && (
         <>
           <div className="no-posts text-center text-white my-5">
             No Feed to show!! <br /> Please feel free to follow suggested
             accounts.
           </div>
-          {suggestions.length > 0 && (
-            <div className="max-w-full grid grid-cols-1 gap-4 md:grid-cols-2 h-auto ">
-              {suggestions.map((suggestion) => (
-                <div className="mx-auto mt-[30px]">
-                  <ProfileCard data={suggestion} />
-                </div>
-              ))}
-            </div>
-          )}
+
+          <div className="max-w-full grid grid-cols-1 gap-4 md:grid-cols-2 h-auto ">
+            {suggestions.map((suggestion) => (
+              <div className="mx-auto mt-[30px]">
+                <ProfileCard data={suggestion} />
+              </div>
+            ))}
+          </div>
         </>
       )}
       <div className="timeline  max-h-[100vh] overflow-auto max-w-xl mx-auto my-10">

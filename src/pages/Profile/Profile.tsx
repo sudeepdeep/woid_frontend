@@ -3,7 +3,7 @@ import { useQuery } from "react-query";
 import axios from "../../services/axios";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
-import Loading from "../../Components/Loading";
+import { ProfileLoading } from "../../Components/Loading";
 import Feed from "../Feed/Feed";
 import ProfileCard from "../../Components/ProfileCard";
 import { useParams } from "react-router-dom";
@@ -17,7 +17,7 @@ function Profile() {
       .catch((err) => toast.error(err))
   );
 
-  if (isLoading) return <Loading />;
+  if (isLoading) return <ProfileLoading />;
   return (
     <div className="h-auto min-h-[100vh]">
       <div className="profile w-full mt-[70px] md:mt-0 h-auto text-center flex justify-center">

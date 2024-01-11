@@ -1,17 +1,19 @@
 import Cookies from "js-cookie";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useState, useEffect } from "react";
 import { ImagesIcon } from "../../Icons";
 import axios from "../../services/axios";
 import { useQueryClient } from "react-query";
 import { toast } from "react-toastify";
 import Loading from "../../Components/Loading";
+import { userStore } from "../../Layout/Layout";
 
 function UploadPost() {
+  const { userData }: any = userStore.useState((s) => s);
+  const [profilePic, setProfilePic] = useState(null);
   const [enterField, setEnterField] = useState(false);
   const [postData, setPostData] = useState("");
   const [loading, setLoading] = useState(false);
   const [uploadedUrls, setUploadedUrls] = useState<string[]>([]);
-  const queryClient = useQueryClient();
   function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
     setLoading(true);
     const selectedFiles = e.target.files;
@@ -32,6 +34,10 @@ function UploadPost() {
         });
     }
   }
+
+  useEffect(() => {
+    setProfilePic(userData?.user?.profileUrl);
+  }, [userData]);
 
   function handleDelete(fileData: string) {
     setUploadedUrls((prevFiles) =>
@@ -65,9 +71,13 @@ function UploadPost() {
     <>
       <div className="upload max-w-xl mx-auto shadow-md rounded-sm md:flex  md:items-center md:justify-start p-1">
         <img
-          src="https://cdn-icons-png.flaticon.com/128/236/236831.png"
+          src={
+            profilePic
+              ? profilePic
+              : "https://cdn-icons-png.flaticon.com/128/236/236831.png"
+          }
           alt="profile"
-          className="rounded-full h-[50px] w-[50px] m-5"
+          className="rounded-full h-[50px] w-[50px] m-5 object-cover"
         />
         <div className="w-full">
           <textarea

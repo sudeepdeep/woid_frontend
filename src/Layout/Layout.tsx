@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { useQuery } from "react-query";
+import axios from "../services/axios";
+
 import {
   HomeIcon,
   ExploreIcon,
@@ -58,13 +61,32 @@ const menuLists = [
 
 function Layout() {
   const navigate = useNavigate();
-  const [activeIndex, setActiveIndex] = useState(1);
   const state = FeedStore.useState((s) => s);
   const userState = userStore.useState((s) => s);
-  const existingUser = Cookies.get("token");
+
+  const { data, isLoading, refetch } = useQuery(
+    "user-data",
+    () =>
+      axios
+        .get(`/user/${Cookies.get("userId")}/my-profile`)
+        .then((res) => {
+          userStore.update((s) => {
+            s.userData = res.data;
+          });
+        })
+        .catch((err) => console.log(err)),
+    {
+      enabled: false,
+    }
+  );
 
   useEffect(() => {
+    const existingUser = Cookies.get("token");
     if (!existingUser) navigate("/login");
+
+    if (!!userState) {
+      refetch();
+    }
   }, []);
 
   function handleLogout() {
@@ -116,22 +138,17 @@ function Layout() {
             <div className="w-full text-center">
               {menuLists.map((item, index) => (
                 <>
-                  <div
-                    onClick={() => {
-                      setActiveIndex(index + 1);
-                      navigate(`${item.path}`);
-                    }}
-                    className={`itemMenu flex items-center ${
-                      activeIndex - 1 !== index
-                        ? "text-white"
-                        : "text-[#fe8040]"
-                    } justify-center gap-[30px] font-semibold uppercase tracking-widest w-[100%] my-5 p-5 cursor-pointer hover:text-[#fe8040]`}
-                  >
-                    <div className="h-[30px] w-[30px]">
-                      {activeIndex - 1 === index ? item.activeIcon : item.icon}
-                    </div>
-                    {item.title}
-                  </div>
+                  <NavLink to={item.path}>
+                    {({ isActive }) => (
+                      <span
+                        className={`itemMenu flex items-center ${
+                          !isActive ? "text-white" : "text-[#fe8040]"
+                        } justify-center gap-[30px] font-semibold uppercase tracking-widest w-[100%] my-5 p-5 cursor-pointer hover:text-[#fe8040]`}
+                      >
+                        {isActive ? item.activeIcon : item.icon} {item.title}
+                      </span>
+                    )}
+                  </NavLink>
                 </>
               ))}
             </div>
@@ -139,20 +156,17 @@ function Layout() {
           <div className="bottomBar h-[60px] block md:hidden w-full bg-[#0F0F0F] shadow-lg fixed top-[93vh] z-30">
             <div className="h-[40px] flex items-center justify-around">
               {menuLists.map((list, index) => (
-                <div
-                  className="h-[10px] w-[20px]"
-                  onClick={() => setActiveIndex(index + 1)}
-                >
-                  <div
-                    onClick={() => {
-                      setActiveIndex(index + 1);
-                      navigate(`${list.path}`);
-                    }}
-                    className="h-[30px] w-[30px]"
-                  >
-                    {activeIndex - 1 === index ? list.activeIcon : list.icon}
+                <>
+                  <div className="h-[10px] w-[20px]">
+                    <NavLink to={list.path}>
+                      {({ isActive }) => (
+                        <div className="h-[30px] w-[30px]">
+                          {isActive ? list.activeIcon : list.icon}
+                        </div>
+                      )}
+                    </NavLink>
                   </div>
-                </div>
+                </>
               ))}
             </div>
           </div>

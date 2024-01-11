@@ -11,9 +11,6 @@ import { toast } from "react-toastify";
 function ProfileCard({ data }: any) {
   const { user, postsCount } = data;
 
-  const { userId } = useParams();
-
-  console.log(userId, user);
   const queryClient = useQueryClient();
 
   const navigate = useNavigate();
@@ -92,24 +89,19 @@ function ProfileCard({ data }: any) {
           </div>
         </div>
 
-        {/* <div className="social-media flex gap-1 justify-around my-[10px]">
-          {socialMediaIcons.map((icon) => (
-            <>{icon.component}</>
-          ))}
-        </div> */}
         <div
           className="w-[200px] h-[50px] border-[1px] hover:bg-[#fe8040] transition-all duration-300  border-[#fe8040] mx-auto mb-3 mt-3 flex items-center justify-center rounded-md font-semibold cursor-pointer"
           onClick={() =>
-            user._id === Cookies.get("userId")
-              ? navigate(`/${user._id}/edit-profile`)
-              : user.following.includes(Cookies.get("userId"))
-              ? handleUnfollow(Cookies.get("userId"), user._id)
-              : handleFollow(Cookies.get("userId"), user._id)
+            user?._id === Cookies.get("userId")
+              ? navigate(`/${user?._id}/edit-profile`)
+              : user?.following.includes(Cookies.get("userId"))
+              ? handleUnfollow(Cookies.get("userId"), user?._id)
+              : handleFollow(Cookies.get("userId"), user?._id)
           }
         >
-          {user._id === Cookies.get("userId")
+          {user?._id === Cookies.get("userId")
             ? "Edit Profile"
-            : user.followers.includes(Cookies.get("userId"))
+            : user?.followers.includes(Cookies.get("userId"))
             ? "Following"
             : "Follow"}
         </div>

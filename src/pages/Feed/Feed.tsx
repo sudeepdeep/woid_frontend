@@ -14,6 +14,7 @@ import { toast } from "react-toastify";
 import loading from "../../assets/images/loading.gif";
 import Loading from "../../Components/Loading";
 import ProfileCard from "../../Components/ProfileCard";
+import ParsedText from "../../Components/ParsedText";
 
 interface FeedInteraction {
   profileClick: boolean;
@@ -52,7 +53,6 @@ function Feed({ isPublic = false, myPosts = false }) {
         .then((res) => res.data)
         .catch((err) => toast.error(err)),
     {
-      cacheTime: 0,
       onSuccess(data) {
         if (data.length > 0) {
           setItems(data);
@@ -140,25 +140,6 @@ function Feed({ isPublic = false, myPosts = false }) {
   }
 
   if (isLoading) return <Loading />;
-
-  function HandleParsedText({ text }: any) {
-    const splitText = text.split(" ");
-    return (
-      <>
-        {splitText.map((text: string) => (
-          <>
-            {text[0] === "#" ? (
-              <span className="font-semibold text-[#fe8040] cursor-pointer mx-1">
-                {text}
-              </span>
-            ) : (
-              <span className="mx-[2px]">{text}</span>
-            )}
-          </>
-        ))}
-      </>
-    );
-  }
 
   function handleFollow(userId: any, friendId: string) {
     axios
@@ -255,22 +236,28 @@ function Feed({ isPublic = false, myPosts = false }) {
                 </div>
                 <div className="postImages grid gap-4">
                   <div className="postText mt-2 text-white">
-                    <HandleParsedText
-                      text={post?.post?.postDescription ?? ""}
-                    />
+                    <ParsedText text={post?.post?.postDescription ?? ""} />
                   </div>
                   {post?.post?.images.length > 0 && (
                     <>
-                      <div className="coverImage my-2 h-[200px] overflow-hidden max-w-full rounded-lg">
+                      <div
+                        className="coverImage my-2 h-[200px] overflow-hidden max-w-full rounded-lg cursor-pointer"
+                        onClick={() =>
+                          window.open(post?.post?.images[0], "_blank")
+                        }
+                      >
                         <img src={post?.post?.images[0]} alt="coverImage" />
                       </div>
                       {post?.post?.images.length > 1 && (
-                        <div className="grid grid-cols-4 gap-2 h-[100px] overflow-hidden">
+                        <div className="grid grid-cols-3 gap-2 h-[100px] overflow-hidden">
                           {post?.post?.images.map(
                             (image: any, index: number) =>
                               index !== 0 && (
                                 <>
-                                  <div className="images rounded-md">
+                                  <div
+                                    className="images rounded-md cursor-pointer"
+                                    onClick={() => window.open(image, "_blank")}
+                                  >
                                     <img src={image} alt="images" />
                                   </div>
                                 </>
